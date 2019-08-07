@@ -21,7 +21,7 @@ async function searchShows(query) {
   // TODO: Make an ajax request to the searchShows api.  Remove
   // hard coded data.
   let showArray = []
-  let response = await axios.get('http://api.tvmaze.com/search/shows', {params: {q: query}})
+  let response = await axios.get('http://api.tvmaze.com/search/shows', { params: { q: query } })
   for (let item of response.data) {
     showArray.push(item.show)
   }
@@ -46,14 +46,17 @@ function populateShows(shows) {
              <h5 class="card-title">${show.name}</h5>
              <p class="card-text">${show.summary}</p>
              <img class="card-img-top" src="${show.image.original || 'https://tinyurl.com/tv-missing'}">
-             <button id="${show.id}">Get Episodes</button>
-             <div id=
-           </div>
+             <button data-show-id="${show.id}" class="episode-button">Get Episodes</button>
+            </div>
          </div>
        </div>
       `);
-
     $showsList.append($item);
+    $('.episode-button').on('click', function (e) {
+      getEpisodes(e.target.getAttribute('data-show-id')).then(function (val) {
+        populateEpisodes(val);
+      });
+    });
   }
 }
 
@@ -63,7 +66,7 @@ function populateShows(shows) {
  *    - get list of matching shows and show in shows list
  */
 
-$("#search-form").on("submit", async function handleSearch (evt) {
+$("#search-form").on("submit", async function handleSearch(evt) {
   evt.preventDefault();
 
   let query = $("#search-query").val();
@@ -72,7 +75,6 @@ $("#search-form").on("submit", async function handleSearch (evt) {
   $("#episodes-area").hide();
 
   let shows = await searchShows(query);
-
   populateShows(shows);
 });
 
@@ -87,4 +89,21 @@ async function getEpisodes(id) {
   //       http://api.tvmaze.com/shows/SHOW-ID-HERE/episodes
 
   // TODO: return array-of-episode-info, as described in docstring above
+
+  let episodesArr = []
+  let episodes = await axios.get(`http://api.tvmaze.com/shows/${id}/episodes`)
+  for (let i of episodes.data) {
+    episodesArr.push(i);
+  }
+  return episodesArr;
+}
+
+function populateEpisodes(episodesList) {
+  $('#episodes-area').css('display', 'initial');
+  $('#episodes-list').html('');
+
+  for (let episode of episodesList) {
+    $('#episodes-list').append(`<li>Name: ${episode.name}</li>`);
+  }
+
 }
