@@ -46,7 +46,7 @@ function populateShows(shows) {
              <h5 class="card-title">${show.name}</h5>
              <p class="card-text">${show.summary}</p>
              <img class="card-img-top" src="${show.image.original || 'https://tinyurl.com/tv-missing'}">
-             <button data-show-id="${show.id}" class="episode-button">Get Episodes</button>
+             <button data-toggle="modal" data-target="#exampleModal" type="button" data-show-name="${show.name}" data-show-id="${show.id}" class="episode-button btn btn-primary" style="margin-top: 15px;">Get Episodes</button>
             </div>
          </div>
        </div>
@@ -54,7 +54,8 @@ function populateShows(shows) {
     $showsList.append($item);
     $('.episode-button').on('click', function (e) {
       getEpisodes(e.target.getAttribute('data-show-id')).then(function (val) {
-        populateEpisodes(val);
+        let showName = e.target.getAttribute('data-show-name');
+        populateEpisodes(val, showName);
       });
     });
   }
@@ -98,12 +99,14 @@ async function getEpisodes(id) {
   return episodesArr;
 }
 
-function populateEpisodes(episodesList) {
-  $('#episodes-area').css('display', 'initial');
+function populateEpisodes(episodesList, show) {
+  console.log(show);
+  // $('#episodes-area').css('display', 'initial');
   $('#episodes-list').html('');
-
+  $('.modal-title').html(`<h5>${show} Episode List</h5>`);
+  $('.modal-body').html('');
   for (let episode of episodesList) {
-    $('#episodes-list').append(`<li>Name: ${episode.name}</li>`);
+    $('.modal-body').append(`<li>${episode.name}</li>`);
   }
 
 }
